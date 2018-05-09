@@ -7,7 +7,11 @@ import {
   ImageBackground,
   TouchableOpacity,
   TextInput,
+  Animated,
+  Dimensions
 } from 'react-native';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 // for animations
 import * as Animatable from 'react-native-animatable';
@@ -18,7 +22,31 @@ class LoginScreen extends Component{
     header: null
   }
 
+  componentWillMount() {
+    this.loginHeight = new Animated.Value(150)
+  }
+
+  increaseHeightOfLogin = () => {
+    Animated.timing(this.loginHeight,{
+      toValue:SCREEN_HEIGHT,
+      duration:500
+    }).start()
+  }
+
   render() {
+
+    // for use the onclick animation
+    const headerTextOpacity = this.loginHeight.interpolate({
+      inputRange: [150, SCREEN_HEIGHT],
+      outputRange: [1,0] // fade to transparent
+    }) 
+    
+    const marginTop = this.loginHeight.interpolate({
+      inputRange: [150, SCREEN_HEIGHT],
+      outputRange: [25,100] // add a lot of margin
+    }) 
+
+
     return <View style={{ flex: 1 }}>
         <ImageBackground source={require("../assets/login_bg.jpg")} style={{ flex: 1 }}>
           {/* Pander Logo Box */}
@@ -33,18 +61,23 @@ class LoginScreen extends Component{
           {/* Bottom Half */}
           <Animatable.View animation="slideInUp" iterationCount={1}>
             {/* 'Get stuff done' section */}
-            <View style={{ height: 150, backgroundColor: "white" }}>
-              <View style={{ opacity: 1, alignItems: "flex-start", paddingHorizontal: 25, marginTop: 25 } //animated //animated
-                }>
+            <Animated.View style={{ height: this.loginHeight, backgroundColor: "white" }}>
+              <Animated.View style={{ 
+                opacity: headerTextOpacity, // animated
+                 alignItems: "flex-start", 
+                 paddingHorizontal: 25, 
+                 marginTop: marginTop, // animated 
+              }}>
                 <Text style={{ fontSize: 22 }}>
                   Get stuff done, with Pander
                 </Text>
-              </View>
+              </Animated.View>
 
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => this.increaseHeightOfLogin()}>
                 <View style={{ marginTop: 25, paddingHorizontal: 25, flexDirection: "row" }}>
                   <Image source={require("../assets/nigeria.jpg")} style={{ height: 24, width: 24, resizeMode: "contain" }} />
-                  <View style={{ flexDirection: "row", flex: 1 }}>
+
+                  <View pointerEvents="none" style={{ flexDirection: "row", flex: 1 }}>
                     {/* Country Code */}
                     <Text style={{ fontSize: 16, paddingHorizontal: 10 }}>
                       +234
@@ -54,7 +87,7 @@ class LoginScreen extends Component{
                   </View>
                 </View>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
 
             {/* 'Connect with social' section */}
             <View style={{ height: 50, backgroundColor: "white", alignItems: "center", justifyContent: "center", borderTopColor: "#e8e8ec", borderTopWidth: 1, paddingHorizontal: 25 }}>
